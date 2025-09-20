@@ -1,0 +1,35 @@
+# Stage 1: Build ứng dụng
+FROM node:20-alpine AS builder
+
+# Cài đặt các công cụ cần thiết (nếu Vite yêu cầu)
+RUN apk add --no-cache python3 make g++
+
+# Thiết lập thư mục làm việc
+WORKDIR /app
+
+# Sao chép package.json và package-lock.json
+COPY package*.json ./
+
+# Cài đặt tất cả dependencies (bao gồm devDependencies cho build)
+RUN npm install
+
+# Sao chép mã nguồn
+COPY . .
+
+# Build ứng dụng
+RUN npm run build
+
+# Stage 2: Serve ứng dụng với Nginx
+FROM nginx:1.25-alpine
+
+# Sao chép file tĩnh từ stage builder
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Sao chép file cấu hình Nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expose cổng 80
+EXPOSE 80
+
+# Khởi động Nginx
+CMD ["nginx", "-g", "daemon off;"]

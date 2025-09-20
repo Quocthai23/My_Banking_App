@@ -1,0 +1,20 @@
+# Dependencies
+**/node_modules/
+
+# Build artifacts
+/frontend/dist/
+/backend/activity.log
+
+# Environment variables
+.env
+.env.example
+
+# Hardhat artifacts & cache
+/blockchain-network/artifacts/
+/blockchain-network/cache/
+
+# IDEs
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

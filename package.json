@@ -1,0 +1,19 @@
+{
+  "name": "my-banking-app",
+  "version": "1.0.0",
+  "description": "A comprehensive banking application with frontend, backend, and blockchain components.",
+  "main": "index.js",
+  "scripts": {
+    "start": "docker-compose up --build",
+    "stop": "docker-compose down",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile:blockchain": "npm run compile -w blockchain-network"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ]
+}

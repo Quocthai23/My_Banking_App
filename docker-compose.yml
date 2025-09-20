@@ -1,0 +1,74 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: banking-backend-service
+    ports:
+      - "5052:5052"
+    volumes:
+      - ./backend/src:/app/src
+      - /app/node_modules
+    env_file:
+      - ./.env
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: banking-frontend-service
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  mongo:
+    # SỬA LỖI: Thay đổi sang phiên bản tương thích hơn để tránh lỗi CPU
+    image: mongo:5.0
+    container_name: banking-mongodb-service
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=your-secure-password
+      - MONGO_INITDB_DATABASE=my_banking_db
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      # Sửa lệnh healthcheck để tương thích với mongo v5
+      test: echo 'db.runCommand("ping").ok' | mongo --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  hardhat:
+    build:
+      context: ./blockchain-network
+      dockerfile: Dockerfile
+    container_name: banking-hardhat-node
+    ports:
+      - "8545:8545"
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local
